@@ -27,9 +27,9 @@ export default function Categories({ onCategorySelect, selectedCategory }: Categ
   }));
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-20 z-40">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex justify-center space-x-8 overflow-x-auto pb-4 pt-6 scrollbar-hide">
+    <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-16 sm:top-20 z-40">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="flex justify-start sm:justify-center space-x-4 sm:space-x-6 md:space-x-8 overflow-x-auto pb-3 sm:pb-4 pt-4 sm:pt-6 scrollbar-hide -mx-3 sm:mx-0 px-3 sm:px-0">
           {categories.map((category) => {
             const Icon = category.icon;
             const isSelected = selectedCategory === category.originalKey || (category.key === 'all' && !selectedCategory);
@@ -37,14 +37,14 @@ export default function Categories({ onCategorySelect, selectedCategory }: Categ
               <button
                 key={category.key}
                 onClick={() => onCategorySelect?.(category.key === 'all' ? '' : (isSelected ? '' : category.originalKey))}
-                className={`flex flex-col items-center space-y-2 min-w-fit cursor-pointer transition-all duration-200 pb-2 group ${
+                className={`flex flex-col items-center space-y-1.5 sm:space-y-2 min-w-fit cursor-pointer transition-all duration-200 pb-2 group min-h-[64px] sm:min-h-[72px] px-2 sm:px-0 active:scale-95 ${
                   isSelected 
                     ? 'text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100' 
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                <Icon className={`h-6 w-6 transition-transform ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`} />
-                <span className="text-xs font-semibold whitespace-nowrap">{category.label}</span>
+                <Icon className={`h-5 w-5 sm:h-6 sm:w-6 transition-transform ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">{category.label}</span>
               </button>
             );
           })}

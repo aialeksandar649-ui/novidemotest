@@ -4,9 +4,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 export default function Footer() {
   const { t, language } = useLanguage();
   return (
-    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
-      <div className="container mx-auto px-4 lg:px-8 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-12 sm:mt-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-4">{t('support')}</h3>
             <ul className="space-y-3">
@@ -102,15 +102,15 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+        <div className="border-t border-gray-200 dark:border-gray-800 pt-4 sm:pt-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               <span>© 2025 Nexora, Inc.</span>
-              <span>·</span>
+              <span className="hidden sm:inline">·</span>
               <span>{t('all.rights.reserved')}</span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
-              <button className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">{language === 'en' ? 'English (US)' : 'Srpski (RS)'}</button>
+            <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <button className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors min-h-[44px] px-2">{language === 'en' ? 'English (US)' : 'Srpski (RS)'}</button>
               <span>$ USD</span>
             </div>
           </div>

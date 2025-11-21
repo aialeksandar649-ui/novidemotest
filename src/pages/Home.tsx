@@ -129,21 +129,22 @@ export default function Home({ properties }: HomeProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="relative w-full h-[65vh] min-h-[500px] max-h-[650px] overflow-hidden">
+      <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[65vh] min-h-[400px] sm:min-h-[500px] md:min-h-[500px] max-h-[650px] overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&auto=format&fit=crop&q=80"
             alt="Balkans"
             className="w-full h-full object-cover"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50"></div>
         </div>
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="text-center px-4 max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
+        <div className="relative z-10 h-full flex items-center justify-center px-4">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight">
               {t('find.adventure')}
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto px-2">
               {t('discover.places')}
             </p>
           </div>
@@ -154,8 +155,8 @@ export default function Home({ properties }: HomeProps) {
       <Categories onCategorySelect={setSelectedCategory} selectedCategory={selectedCategory} />
 
       {/* Filters and Properties */}
-      <section className="container mx-auto px-4 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+      <section className="container mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {/* Filters Sidebar */}
           <aside className="lg:col-span-1">
             <Filters onFilterChange={setFilters} />
@@ -179,13 +180,13 @@ export default function Home({ properties }: HomeProps) {
               </p>
             </div>
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                 {[...Array(8)].map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                 {filteredProperties.map((property, index) => {
                   const propertyId = properties.findIndex(p => p === property);
                   return (

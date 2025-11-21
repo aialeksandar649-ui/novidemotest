@@ -60,12 +60,12 @@ export default function Filters({ onFilterChange, onClose }: FiltersProps) {
       <div className="md:hidden mb-4">
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-500 transition-colors bg-white dark:bg-gray-800"
+          className="flex items-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-500 active:bg-gray-50 dark:active:bg-gray-700 transition-colors bg-white dark:bg-gray-800 w-full justify-center min-h-[44px]"
         >
-          <Filter className="h-4 w-4" />
-          <span>{t('filters')}</span>
+          <Filter className="h-5 w-5" />
+          <span className="font-medium">{t('filters')}</span>
           {activeFiltersCount > 0 && (
-            <span className="bg-[#FF385C] text-white text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-[#FF385C] text-white text-xs px-2 py-0.5 rounded-full font-semibold">
               {activeFiltersCount}
             </span>
           )}
@@ -73,7 +73,7 @@ export default function Filters({ onFilterChange, onClose }: FiltersProps) {
       </div>
 
       {/* Filter Panel */}
-      <div className={`${showFilters ? 'block' : 'hidden'} md:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6`}>
+      <div className={`${showFilters ? 'block' : 'hidden'} md:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6`}>
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('filters')}</h3>
           <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function Filters({ onFilterChange, onClose }: FiltersProps) {
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange({ sortBy: e.target.value as FilterState['sortBy'] })}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/20 outline-none"
+              className="w-full px-4 py-3 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/20 outline-none text-base sm:text-sm min-h-[44px]"
             >
               <option value="popular">{t('most.popular')}</option>
               <option value="rating">{t('highest.rated')}</option>
@@ -149,10 +149,10 @@ export default function Filters({ onFilterChange, onClose }: FiltersProps) {
                 <button
                   key={num}
                   onClick={() => handleFilterChange({ bedrooms: filters.bedrooms === num ? null : num })}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-4 py-2.5 sm:py-2 rounded-lg border transition-colors min-h-[44px] ${
                     filters.bedrooms === num
                       ? 'bg-[#FF385C] text-white border-[#FF385C]'
-                      : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-500'
+                      : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-500 active:bg-gray-50 dark:active:bg-gray-700'
                   }`}
                 >
                   {num}+
