@@ -1,0 +1,254 @@
+import { useState } from 'react';
+import { X, Filter } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+
+interface FiltersProps {
+  onFilterChange: (filters: FilterState) => void;
+  onClose?: () => void;
+}
+
+export interface FilterState {
+  priceRange: [number, number];
+  bedrooms: number | null;
+  beds: number | null;
+  bathrooms: number | null;
+  guests: number | null;
+  amenities: string[];
+  sortBy: 'price-asc' | 'price-desc' | 'rating' | 'popular';
+}
+
+const defaultFilters: FilterState = {
+  priceRange: [0, 500],
+  bedrooms: null,
+  beds: null,
+  bathrooms: null,
+  guests: null,
+  amenities: [],
+  sortBy: 'popular'
+};
+
+const amenitiesList = ['WiFi', 'Kitchen', 'Parking', 'Air Conditioning', 'Washer', 'TV', 'Heating', 'Balcony'];
+
+export default function Filters({ onFilterChange, onClose }: FiltersProps) {
+  const { t } = useLanguage();
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const handleFilterChange = (newFilters: Partial<FilterState>) => {
+    const updated = { ...filters, ...newFilters };
+    setFilters(updated);
+    onFilterChange(updated);
+  };
+
+  const resetFilters = () => {
+    setFilters(defaultFilters);
+    onFilterChange(defaultFilters);
+  };
+
+  const activeFiltersCount = [
+    filters.bedrooms !== null,
+    filters.beds !== null,
+    filters.bathrooms !== null,
+    filters.guests !== null,
+    filters.amenities.length > 0,
+    filters.priceRange[0] > 0 || filters.priceRange[1] < 500
+  ].filter(Boolean).length;
+
+  return (
+    <div className="mb-6">
+      {/* Mobile Filter Button */}
+      <div className="md:hidden mb-4">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-500 transition-colors bg-white dark:bg-gray-800"
+        >
+          <Filter className="h-4 w-4" />
+          <span>{t('filters')}</span>
+          {activeFiltersCount > 0 && (
+            <span className="bg-[#FF385C] text-white text-xs px-2 py-0.5 rounded-full">
+              {activeFiltersCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Filter Panel */}
+      <div className={`${showFilters ? 'block' : 'hidden'} md:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6`}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('filters')}</h3>
+          <div className="flex items-center gap-2">
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={resetFilters}
+                className="text-sm text-[#FF385C] hover:underline"
+              >
+                {t('reset')}
+              </button>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="md:hidden p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Sort By */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              {t('sort.by')}
+            </label>
+            <select
+              value={filters.sortBy}
+              onChange={(e) => handleFilterChange({ sortBy: e.target.value as FilterState['sortBy'] })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/20 outline-none"
+            >
+              <option value="popular">{t('most.popular')}</option>
+              <option value="rating">{t('highest.rated')}</option>
+              <option value="price-asc">{t('price.low.high')}</option>
+              <option value="price-desc">{t('price.high.low')}</option>
+            </select>
+          </div>
+
+          {/* Price Range */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              {t('price.per.night')}: ${filters.priceRange[0]} - ${filters.priceRange[1]}
+            </label>
+            <div className="space-y-2">
+              <input
+                type="range"
+                min="0"
+                max="500"
+                value={filters.priceRange[0]}
+                onChange={(e) => handleFilterChange({ priceRange: [Number(e.target.value), filters.priceRange[1]] })}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#FF385C]"
+              />
+              <input
+                type="range"
+                min="0"
+                max="500"
+                value={filters.priceRange[1]}
+                onChange={(e) => handleFilterChange({ priceRange: [filters.priceRange[0], Number(e.target.value)] })}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#FF385C]"
+              />
+            </div>
+          </div>
+
+          {/* Bedrooms */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              {t('bedrooms')}
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {[1, 2, 3, 4, 5].map(num => (
+                <button
+                  key={num}
+                  onClick={() => handleFilterChange({ bedrooms: filters.bedrooms === num ? null : num })}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    filters.bedrooms === num
+                      ? 'bg-[#FF385C] text-white border-[#FF385C]'
+                      : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-500'
+                  }`}
+                >
+                  {num}+
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Beds */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              {t('beds')}
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {[1, 2, 3, 4, 5].map(num => (
+                <button
+                  key={num}
+                  onClick={() => handleFilterChange({ beds: filters.beds === num ? null : num })}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    filters.beds === num
+                      ? 'bg-[#FF385C] text-white border-[#FF385C]'
+                      : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-500'
+                  }`}
+                >
+                  {num}+
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bathrooms */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              {t('bathrooms')}
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {[1, 1.5, 2, 2.5, 3].map(num => (
+                <button
+                  key={num}
+                  onClick={() => handleFilterChange({ bathrooms: filters.bathrooms === num ? null : num })}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    filters.bathrooms === num
+                      ? 'bg-[#FF385C] text-white border-[#FF385C]'
+                      : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-500'
+                  }`}
+                >
+                  {num}+
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Guests */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              {t('guests')}
+            </label>
+            <select
+              value={filters.guests || ''}
+              onChange={(e) => handleFilterChange({ guests: e.target.value ? Number(e.target.value) : null })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/20 outline-none"
+            >
+              <option value="">{t('any')}</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                <option key={num} value={num}>{num} {num === 1 ? t('guest') : t('guests.plural')}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Amenities */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              {t('amenities')}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {amenitiesList.map(amenity => (
+                <label key={amenity} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filters.amenities.includes(amenity)}
+                    onChange={(e) => {
+                      const newAmenities = e.target.checked
+                        ? [...filters.amenities, amenity]
+                        : filters.amenities.filter(a => a !== amenity);
+                      handleFilterChange({ amenities: newAmenities });
+                    }}
+                    className="w-4 h-4 text-[#FF385C] border-gray-300 rounded focus:ring-[#FF385C]"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{amenity}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

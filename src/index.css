@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Hide circular elements and elements with masks */
+* {
+  &[style*="border-radius: 50%"],
+  &[style*="border-radius:50%"] {
+    display: none !important;
+  }
+}
+
+/* Hide elements with rounded-full that create circles (when width = height) */
+.rounded-full {
+  &[class*="w-"]:not([class*="w-full"]):not([class*="w-auto"]) {
+    display: none !important;
+  }
+}
+
+/* Hide elements with mask-image */
+*[style*="mask-image"],
+*[style*="maskImage"] {
+  display: none !important;
+}
+
+@layer utilities {
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@layer base {
+  :root {
+    --airbnb-red: #FF385C;
+    --airbnb-dark: #222222;
+    --airbnb-gray: #717171;
+    --airbnb-light-gray: #DDDDDD;
+    --airbnb-bg: #FFFFFF;
+    --airbnb-hover: #F7F7F7;
+  }
+
+  body {
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .text-airbnb {
+    color: var(--airbnb-red);
+  }
+  
+  .bg-airbnb {
+    background-color: var(--airbnb-red);
+  }
+  
+  .hover-airbnb:hover {
+    background-color: var(--airbnb-hover);
+  }
+  
+  .border-airbnb {
+    border-color: var(--airbnb-red);
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Image loading and display */
+img {
+  @apply transition-opacity duration-300;
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Grid layout fixes */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols, 1), minmax(0, 1fr));
+}
+
+/* Property card fixes */
+.property-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Prevent image overflow */
+.aspect-\[4\/3\] {
+  position: relative;
+  width: 100%;
+  padding-bottom: 75%;
+}
+
+.aspect-\[4\/3\] > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
