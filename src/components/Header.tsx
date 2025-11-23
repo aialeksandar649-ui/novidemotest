@@ -7,11 +7,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'sr' : 'en');
+  };
 
   // Update search query from URL
   useEffect(() => {
@@ -124,58 +127,37 @@ export default function Header() {
               {t('become.host')}
             </Link>
             
-            {/* Language Switcher */}
-            <div className="relative">
-              <button
-                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-                className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-              >
-                <Globe className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              </button>
-              {showLanguageMenu && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setShowLanguageMenu(false)}
-                  ></div>
-                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
-                    <button
-                      onClick={() => {
-                        setLanguage('en');
-                        setShowLanguageMenu(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                        language === 'en' ? 'font-semibold text-[#FF385C]' : 'text-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {t('language.english')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setLanguage('sr');
-                        setShowLanguageMenu(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                        language === 'sr' ? 'font-semibold text-[#FF385C]' : 'text-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {t('language.serbian')}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Theme Toggle */}
+            {/* Theme Toggle Button - Always Visible */}
             <button
               onClick={toggleTheme}
-              className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-[#FF385C] hover:bg-[#E61E4D] text-white rounded-lg sm:rounded-full transition-all min-h-[44px] min-w-[44px] sm:min-w-auto shadow-md hover:shadow-lg font-semibold text-sm"
+              style={{ borderRadius: '9999px' }}
+              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
               {theme === 'light' ? (
-                <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                <>
+                  <Moon className="h-5 w-5" />
+                  <span className="hidden sm:inline">Dark Mode</span>
+                </>
               ) : (
-                <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                <>
+                  <Sun className="h-5 w-5" />
+                  <span className="hidden sm:inline">Light Mode</span>
+                </>
               )}
+            </button>
+            
+            {/* Language Toggle Button - Always Visible */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-[#FF385C] hover:bg-[#E61E4D] text-white rounded-lg sm:rounded-full transition-all min-h-[44px] min-w-[44px] sm:min-w-auto shadow-md hover:shadow-lg font-semibold text-sm"
+              style={{ borderRadius: '9999px' }}
+              aria-label={language === 'en' ? 'Switch to Serbian' : 'Switch to English'}
+              title={language === 'en' ? 'Switch to Serbian' : 'Switch to English'}
+            >
+              <Globe className="h-5 w-5" />
+              <span className="hidden sm:inline">{language === 'en' ? 'EN' : 'SR'}</span>
             </button>
 
             {/* User Menu */}

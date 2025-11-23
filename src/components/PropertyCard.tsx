@@ -2,6 +2,7 @@ import { Star, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Property } from '../types';
 import { useFavorites } from '../hooks/useFavorites';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PropertyCardProps extends Property {
   id: number;
@@ -10,6 +11,7 @@ interface PropertyCardProps extends Property {
 export default function PropertyCard({ id, imageUrl, images, location, title, price, rating }: PropertyCardProps) {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { t } = useLanguage();
   const favorite = isFavorite(id);
 
   // Prioritize images array, then imageUrl, with fallback
@@ -63,7 +65,7 @@ export default function PropertyCard({ id, imageUrl, images, location, title, pr
         <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-[15px] line-clamp-2 min-h-[2.5rem] leading-snug">{title}</p>
         <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-[15px] mt-auto">
           <span className="font-semibold text-gray-900 dark:text-gray-100">${price}</span>
-          <span className="text-gray-500 dark:text-gray-400"> night</span>
+          <span className="text-gray-500 dark:text-gray-400"> {t('night')}</span>
         </p>
       </div>
     </div>

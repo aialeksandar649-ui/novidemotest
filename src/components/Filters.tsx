@@ -171,7 +171,7 @@ export default function Filters({ onFilterChange, onClose }: FiltersProps) {
                 <button
                   key={num}
                   onClick={() => handleFilterChange({ beds: filters.beds === num ? null : num })}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-4 py-2 rounded-lg border transition-colors min-h-[44px] ${
                     filters.beds === num
                       ? 'bg-[#FF385C] text-white border-[#FF385C]'
                       : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-500'
@@ -193,7 +193,7 @@ export default function Filters({ onFilterChange, onClose }: FiltersProps) {
                 <button
                   key={num}
                   onClick={() => handleFilterChange({ bathrooms: filters.bathrooms === num ? null : num })}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-4 py-2 rounded-lg border transition-colors min-h-[44px] ${
                     filters.bathrooms === num
                       ? 'bg-[#FF385C] text-white border-[#FF385C]'
                       : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-500'

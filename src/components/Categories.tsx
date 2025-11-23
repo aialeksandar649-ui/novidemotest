@@ -19,7 +19,7 @@ interface CategoriesProps {
 }
 
 export default function Categories({ onCategorySelect, selectedCategory }: CategoriesProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   
   const categories = categoryKeys.map(cat => ({
     ...cat,

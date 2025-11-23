@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'en' | 'sr';
 
@@ -194,6 +194,61 @@ const translations: Record<Language, Record<string, string>> = {
     'faq.pets.answer': 'Pet policies vary by property. Check the property listing for specific pet policies, or contact the host directly to discuss your needs.',
     'faq.refund': 'What is your refund policy?',
     'faq.refund.answer': 'Refund policies depend on the cancellation policy of your specific booking. Check your booking confirmation for details, or contact support for assistance.',
+    // Privacy Policy Details
+    'privacy.matters': 'Your Privacy Matters',
+    'privacy.intro': 'At Nexora, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our platform.',
+    'info.collect': 'Information We Collect',
+    'info.collect.intro': 'We collect information that you provide directly to us, including:',
+    'info.collect.account': 'Account information (name, email, phone number)',
+    'info.collect.payment': 'Payment information (processed securely through third-party providers)',
+    'info.collect.booking': 'Booking details and travel preferences',
+    'info.collect.communications': 'Communications with hosts and our support team',
+    'how.use': 'How We Use Your Information',
+    'how.use.intro': 'We use your information to:',
+    'how.use.process': 'Process and manage your bookings',
+    'how.use.communicate': 'Communicate with you about your reservations',
+    'how.use.improve': 'Improve our services and user experience',
+    'how.use.offers': 'Send you relevant travel offers (with your consent)',
+    'how.use.security': 'Ensure platform security and prevent fraud',
+    'data.security': 'Data Security',
+    'data.security.desc': 'We implement industry-standard security measures to protect your personal information. All data is encrypted in transit and at rest. We never share your information with third parties except as necessary to provide our services or as required by law.',
+    'your.rights': 'Your Rights',
+    'your.rights.intro': 'You have the right to:',
+    'rights.access': 'Access your personal data',
+    'rights.correct': 'Correct inaccurate information',
+    'rights.delete': 'Request deletion of your data',
+    'rights.optout': 'Opt-out of marketing communications',
+    'rights.portability': 'Data portability',
+    'privacy.contact': 'Contact Us',
+    'privacy.contact.desc': 'If you have questions about this Privacy Policy or wish to exercise your rights, please contact us at',
+    // Terms of Service Details
+    'terms.agreement': 'Agreement to Terms',
+    'terms.agreement.desc': 'By accessing and using Nexora, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not use our platform.',
+    'terms.user.responsibilities': 'User Responsibilities',
+    'terms.user.intro': 'As a user of Nexora, you agree to:',
+    'user.accurate': 'Provide accurate and complete information',
+    'user.lawful': 'Use the platform only for lawful purposes',
+    'user.respect': 'Respect the property and rights of hosts',
+    'user.comply': 'Comply with all applicable laws and regulations',
+    'user.security': 'Maintain the security of your account',
+    'terms.booking': 'Booking Terms',
+    'terms.booking.intro': 'When making a booking:',
+    'booking.contract': 'You are entering into a contract directly with the host',
+    'booking.payment': 'Payment is processed at the time of booking',
+    'booking.cancellation': 'Cancellation policies vary by property and are clearly displayed',
+    'booking.damages': 'You are responsible for any damages to the property',
+    'booking.refunds': 'Refunds are subject to the host\'s cancellation policy',
+    'terms.host.responsibilities': 'Host Responsibilities',
+    'terms.host.intro': 'Hosts agree to:',
+    'host.accurate': 'Provide accurate property descriptions and photos',
+    'host.maintain': 'Maintain properties in safe and habitable condition',
+    'host.honor': 'Honor confirmed reservations',
+    'host.respond': 'Respond promptly to guest inquiries',
+    'host.comply': 'Comply with all local laws and regulations',
+    'terms.liability': 'Limitation of Liability',
+    'terms.liability.desc': 'Nexora acts as a platform connecting guests and hosts. We are not responsible for the condition of properties, the conduct of hosts or guests, or any disputes that may arise. Our liability is limited to the service fees we collect.',
+    'terms.modifications': 'Modifications',
+    'terms.modifications.desc': 'We reserve the right to modify these terms at any time. Continued use of the platform after changes constitutes acceptance of the new terms.',
   },
   sr: {
     'explore.all': 'Istraži sve',
@@ -369,6 +424,61 @@ const translations: Record<Language, Record<string, string>> = {
     'faq.pets.answer': 'Politika za kućne ljubimce varira po nekretnini. Proverite oglas nekretnine za specifične politike za kućne ljubimce, ili kontaktirajte domaćina direktno da razgovarate o vašim potrebama.',
     'faq.refund': 'Koja je vaša politika povraćaja novca?',
     'faq.refund.answer': 'Politika povraćaja novca zavisi od politike otkazivanja vaše specifične rezervacije. Proverite potvrdu rezervacije za detalje, ili kontaktirajte podršku za pomoć.',
+    // Privacy Policy Details
+    'privacy.matters': 'Vaša privatnost je važna',
+    'privacy.intro': 'U Nexora, posvećeni smo zaštiti vaše privatnosti i osiguravanju bezbednosti vaših ličnih podataka. Ova Politika privatnosti objašnjava kako prikupljamo, koristimo i štitimo vaše podatke kada koristite našu platformu.',
+    'info.collect': 'Informacije koje prikupljamo',
+    'info.collect.intro': 'Prikupljamo informacije koje nam direktno pružate, uključujući:',
+    'info.collect.account': 'Informacije o nalogu (ime, email, broj telefona)',
+    'info.collect.payment': 'Informacije o plaćanju (obrađuju se sigurno preko trećih strana)',
+    'info.collect.booking': 'Detalji rezervacije i preferencije putovanja',
+    'info.collect.communications': 'Komunikacije sa domaćinima i našim timom za podršku',
+    'how.use': 'Kako koristimo vaše informacije',
+    'how.use.intro': 'Koristimo vaše informacije za:',
+    'how.use.process': 'Obradu i upravljanje vašim rezervacijama',
+    'how.use.communicate': 'Komunikaciju sa vama o vašim rezervacijama',
+    'how.use.improve': 'Poboljšanje naših usluga i korisničkog iskustva',
+    'how.use.offers': 'Slanje relevantnih ponuda za putovanja (uz vašu saglasnost)',
+    'how.use.security': 'Osiguravanje bezbednosti platforme i sprečavanje prevara',
+    'data.security': 'Bezbednost podataka',
+    'data.security.desc': 'Primenjujemo standardne mere bezbednosti industrije za zaštitu vaših ličnih podataka. Svi podaci su šifrovani u tranzitu i u mirovanju. Nikada ne delimo vaše informacije sa trećim stranama osim što je neophodno za pružanje naših usluga ili kako zahteva zakon.',
+    'your.rights': 'Vaša prava',
+    'your.rights.intro': 'Imate pravo da:',
+    'rights.access': 'Pristupite svojim ličnim podacima',
+    'rights.correct': 'Ispravite netačne informacije',
+    'rights.delete': 'Zatražite brisanje vaših podataka',
+    'rights.optout': 'Odustanete od marketinških komunikacija',
+    'rights.portability': 'Prenos podataka',
+    'privacy.contact': 'Kontaktirajte nas',
+    'privacy.contact.desc': 'Ako imate pitanja o ovoj Politici privatnosti ili želite da iskoristite svoja prava, molimo kontaktirajte nas na',
+    // Terms of Service Details
+    'terms.agreement': 'Saglasnost sa uslovima',
+    'terms.agreement.desc': 'Pristupanjem i korišćenjem Nexora, slažete se da ste vezani ovim Uslovima korišćenja. Ako se ne slažete sa bilo kojim delom ovih uslova, ne smete koristiti našu platformu.',
+    'terms.user.responsibilities': 'Odgovornosti korisnika',
+    'terms.user.intro': 'Kao korisnik Nexora, slažete se da:',
+    'user.accurate': 'Pružate tačne i potpune informacije',
+    'user.lawful': 'Koristite platformu samo u zakonite svrhe',
+    'user.respect': 'Poštujete imovinu i prava domaćina',
+    'user.comply': 'Pridržavate se svih primenjivih zakona i propisa',
+    'user.security': 'Održavate bezbednost svog naloga',
+    'terms.booking': 'Uslovi rezervacije',
+    'terms.booking.intro': 'Prilikom rezervacije:',
+    'booking.contract': 'Ulazite u ugovor direktno sa domaćinom',
+    'booking.payment': 'Plaćanje se obrađuje u trenutku rezervacije',
+    'booking.cancellation': 'Politika otkazivanja varira po nekretnini i jasno je prikazana',
+    'booking.damages': 'Odgovorni ste za bilo kakvu štetu na nekretnini',
+    'booking.refunds': 'Povraćaj novca zavisi od politike otkazivanja domaćina',
+    'terms.host.responsibilities': 'Odgovornosti domaćina',
+    'terms.host.intro': 'Domaćini se slažu da:',
+    'host.accurate': 'Pružaju tačne opise nekretnina i fotografije',
+    'host.maintain': 'Održavaju nekretnine u bezbednom i pogodnom stanju',
+    'host.honor': 'Poštuju potvrđene rezervacije',
+    'host.respond': 'Brzo odgovaraju na upite gostiju',
+    'host.comply': 'Pridržavaju se svih lokalnih zakona i propisa',
+    'terms.liability': 'Ograničenje odgovornosti',
+    'terms.liability.desc': 'Nexora deluje kao platforma koja povezuje goste i domaćine. Nismo odgovorni za stanje nekretnina, ponašanje domaćina ili gostiju, ili bilo kakve sporove koji mogu nastati. Naša odgovornost je ograničena na naknade za usluge koje prikupljamo.',
+    'terms.modifications': 'Izmene',
+    'terms.modifications.desc': 'Zadržavamo pravo da ove uslove izmenimo u bilo kom trenutku. Nastavak korišćenja platforme nakon izmena predstavlja prihvatanje novih uslova.',
   },
 };
 
@@ -379,6 +489,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem('language');
     return (saved as Language) || 'en';
   });
+
+  // Sync with other tabs
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'language' && e.newValue) {
+        setLanguageState(e.newValue as Language);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -396,6 +518,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {

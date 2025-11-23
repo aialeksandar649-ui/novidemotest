@@ -141,10 +141,10 @@ export default function Home({ properties }: HomeProps) {
         </div>
         <div className="relative z-10 h-full flex items-center justify-center px-4">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight drop-shadow-lg">
               {t('find.adventure')}
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto px-2">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/95 max-w-2xl mx-auto px-2 drop-shadow-md">
               {t('discover.places')}
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function Home({ properties }: HomeProps) {
         {filteredProperties.length > 0 ? (
           <>
             <div className="mb-10">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 {searchQuery 
                   ? `${t('search.results')} "${searchQuery}"` 
                   : selectedCategory 
@@ -175,7 +175,7 @@ export default function Home({ properties }: HomeProps) {
                     : t('explore.all')
                 }
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 text-[15px]">
+              <p className="text-gray-600 dark:text-gray-400 text-[15px] sm:text-base">
                 {filteredProperties.length} {filteredProperties.length === 1 ? t('stay') : t('stays')}
               </p>
             </div>
@@ -202,8 +202,8 @@ export default function Home({ properties }: HomeProps) {
           </>
         ) : (
           <div className="text-center py-20">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('no.properties')}</h2>
-            <p className="text-gray-600 dark:text-gray-400">{t('try.adjusting')}</p>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('no.properties')}</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg">{t('try.adjusting')}</p>
           </div>
         )}
           </div>

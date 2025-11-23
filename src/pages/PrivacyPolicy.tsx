@@ -15,72 +15,64 @@ export default function PrivacyPolicy() {
         <section>
           <div className="flex items-center gap-3 mb-4">
             <Shield className="h-6 w-6 text-[#FF385C]" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your Privacy Matters</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('privacy.matters')}</h2>
           </div>
-          <p>
-            At Nexora, we are committed to protecting your privacy and ensuring the security of your personal information. 
-            This Privacy Policy explains how we collect, use, and safeguard your data when you use our platform.
-          </p>
+          <p>{t('privacy.intro')}</p>
         </section>
 
         <section>
           <div className="flex items-center gap-3 mb-4">
             <FileText className="h-6 w-6 text-[#FF385C]" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Information We Collect</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('info.collect')}</h2>
           </div>
-          <p className="mb-3">We collect information that you provide directly to us, including:</p>
+          <p className="mb-3">{t('info.collect.intro')}</p>
           <ul className="list-disc list-inside space-y-2 ml-4">
-            <li>Account information (name, email, phone number)</li>
-            <li>Payment information (processed securely through third-party providers)</li>
-            <li>Booking details and travel preferences</li>
-            <li>Communications with hosts and our support team</li>
+            <li>{t('info.collect.account')}</li>
+            <li>{t('info.collect.payment')}</li>
+            <li>{t('info.collect.booking')}</li>
+            <li>{t('info.collect.communications')}</li>
           </ul>
         </section>
 
         <section>
           <div className="flex items-center gap-3 mb-4">
             <Eye className="h-6 w-6 text-[#FF385C]" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">How We Use Your Information</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('how.use')}</h2>
           </div>
-          <p className="mb-3">We use your information to:</p>
+          <p className="mb-3">{t('how.use.intro')}</p>
           <ul className="list-disc list-inside space-y-2 ml-4">
-            <li>Process and manage your bookings</li>
-            <li>Communicate with you about your reservations</li>
-            <li>Improve our services and user experience</li>
-            <li>Send you relevant travel offers (with your consent)</li>
-            <li>Ensure platform security and prevent fraud</li>
+            <li>{t('how.use.process')}</li>
+            <li>{t('how.use.communicate')}</li>
+            <li>{t('how.use.improve')}</li>
+            <li>{t('how.use.offers')}</li>
+            <li>{t('how.use.security')}</li>
           </ul>
         </section>
 
         <section>
           <div className="flex items-center gap-3 mb-4">
             <Lock className="h-6 w-6 text-[#FF385C]" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Data Security</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('data.security')}</h2>
           </div>
-          <p>
-            We implement industry-standard security measures to protect your personal information. 
-            All data is encrypted in transit and at rest. We never share your information with third parties 
-            except as necessary to provide our services or as required by law.
-          </p>
+          <p>{t('data.security.desc')}</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Your Rights</h2>
-          <p className="mb-3">You have the right to:</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('your.rights')}</h2>
+          <p className="mb-3">{t('your.rights.intro')}</p>
           <ul className="list-disc list-inside space-y-2 ml-4">
-            <li>Access your personal data</li>
-            <li>Correct inaccurate information</li>
-            <li>Request deletion of your data</li>
-            <li>Opt-out of marketing communications</li>
-            <li>Data portability</li>
+            <li>{t('rights.access')}</li>
+            <li>{t('rights.correct')}</li>
+            <li>{t('rights.delete')}</li>
+            <li>{t('rights.optout')}</li>
+            <li>{t('rights.portability')}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Contact Us</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('privacy.contact')}</h2>
           <p>
-            If you have questions about this Privacy Policy or wish to exercise your rights, 
-            please contact us at <a href="mailto:privacy@nexora.com" className="text-[#FF385C] hover:underline">privacy@nexora.com</a>
+            {t('privacy.contact.desc')} <a href="mailto:privacy@nexora.com" className="text-[#FF385C] hover:underline">privacy@nexora.com</a>
           </p>
         </section>
       </div>
