@@ -37,8 +37,8 @@ export default function Contact() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">{t('email')}</h3>
-                <a href="mailto:support@nexora.com" className="text-gray-600 dark:text-gray-400 hover:text-[#FF385C] transition-colors">
-                  support@nexora.com
+                <a href="mailto:support@gmail.com" className="text-gray-600 dark:text-gray-400 hover:text-[#FF385C] transition-colors">
+                  support@gmail.com
                 </a>
               </div>
             </div>
@@ -49,8 +49,8 @@ export default function Contact() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">{t('phone')}</h3>
-                <a href="tel:+381123456789" className="text-gray-600 dark:text-gray-400 hover:text-[#FF385C] transition-colors">
-                  +381 12 345 6789
+                <a href="tel:+381000000000" className="text-gray-600 dark:text-gray-400 hover:text-[#FF385C] transition-colors">
+                  +381 00 000 0000
                 </a>
               </div>
             </div>

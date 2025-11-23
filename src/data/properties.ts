@@ -1,12 +1,12 @@
 export const properties = [
   {
-    imageUrl: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&auto=format&fit=crop&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1600585154526-990dbe4eb5a3?w=800&auto=format&fit=crop&q=80",
     images: [
-      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154526-990dbe4eb5a3?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600585152915-d208bec867a1?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&auto=format&fit=crop&q=80"
     ],
     location: "Mostar, Bosnia and Herzegovina",
     title: "Historic Ottoman House with Neretva River View",
@@ -70,7 +70,7 @@ export const properties = [
     images: [
       "https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&auto=format&fit=crop&q=80"
     ],
@@ -137,7 +137,7 @@ export const properties = [
       "https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1614622367936-5e7b8d0b8882?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1614622367805-09e1e0960845?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600566753151-384129cf4e3e?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&auto=format&fit=crop&q=80"
     ],
     location: "Sarajevo, Bosnia and Herzegovina",
@@ -171,7 +171,7 @@ export const properties = [
       "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1516399520304-da635c08767b?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80"
     ],
     location: "Tirana, Albania",
     title: "Contemporary Studio in Blloku District",
