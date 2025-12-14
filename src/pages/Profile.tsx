@@ -7,6 +7,19 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useProperties } from '../contexts/PropertiesContext';
 import { useToast } from '../contexts/ToastContext';
 import SEO from '../components/SEO';
+import { Property } from '../types';
+
+interface BookingData {
+  id: string;
+  propertyId: number;
+  property: Property;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalPrice: number;
+  status: 'upcoming' | 'completed' | 'cancelled';
+  bookingDate: string;
+}
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -29,18 +42,18 @@ export default function Profile() {
     const savedBookings = localStorage.getItem('nexora-bookings');
     if (savedBookings) {
       try {
-        const bookings = JSON.parse(savedBookings);
+        const bookings: BookingData[] = JSON.parse(savedBookings);
         setBookingsCount(bookings.length);
         
         // Count active (upcoming) bookings
-        const active = bookings.filter((b: any) => b.status === 'upcoming').length;
+        const active = bookings.filter((b) => b.status === 'upcoming').length;
         setActiveBookings(active);
         
-        const completed = bookings.filter((b: any) => b.status === 'completed');
-        const totalSpent = completed.reduce((sum: number, b: any) => sum + (b.totalPrice || 0), 0);
+        const completed = bookings.filter((b) => b.status === 'completed');
+        const totalSpent = completed.reduce((sum: number, b) => sum + (b.totalPrice || 0), 0);
         
         const destinations = new Set<string>();
-        bookings.forEach((b: any) => {
+        bookings.forEach((b) => {
           const prop = properties.find(p => p.title === b.property?.title);
           if (prop) destinations.add(prop.location);
         });

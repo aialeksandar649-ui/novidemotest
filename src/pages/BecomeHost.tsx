@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Home, DollarSign, Users, Shield, TrendingUp, Plus, CheckCircle } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useProperties } from '../contexts/PropertiesContext';
 import { Property } from '../types';
@@ -8,7 +8,6 @@ import { Property } from '../types';
 export default function BecomeHost() {
   const { t } = useLanguage();
   const { addProperty } = useProperties();
-  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);

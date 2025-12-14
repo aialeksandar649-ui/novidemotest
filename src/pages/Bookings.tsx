@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Search } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useProperties } from '../contexts/PropertiesContext';
 import { useToast } from '../contexts/ToastContext';
 import EmptyState from '../components/EmptyState';
 import SEO from '../components/SEO';
@@ -20,10 +19,21 @@ interface Booking {
   bookingDate: Date;
 }
 
+interface BookingData {
+  id: string;
+  propertyId: number;
+  property: Property;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalPrice: number;
+  status: 'upcoming' | 'completed' | 'cancelled';
+  bookingDate: string;
+}
+
 export default function Bookings() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { properties } = useProperties();
   const { showToast } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed' | 'cancelled'>('all');
@@ -34,8 +44,8 @@ export default function Bookings() {
     const savedBookings = localStorage.getItem('nexora-bookings');
     if (savedBookings) {
       try {
-        const parsed = JSON.parse(savedBookings);
-        const bookingsWithDates = parsed.map((b: any) => ({
+        const parsed: BookingData[] = JSON.parse(savedBookings);
+        const bookingsWithDates: Booking[] = parsed.map((b) => ({
           ...b,
           checkIn: new Date(b.checkIn),
           checkOut: new Date(b.checkOut),

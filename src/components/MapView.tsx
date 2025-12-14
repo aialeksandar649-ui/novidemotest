@@ -7,7 +7,6 @@ interface MapViewProps {
   selectedProperty?: Property | null;
   onPropertyClick?: (property: Property, index: number) => void;
   center?: { lat: number; lng: number };
-  zoom?: number;
 }
 
 // Simple coordinate generator based on location string
@@ -33,9 +32,7 @@ const getCoordinates = (location: string): { lat: number; lng: number } => {
 export default function MapView({ 
   properties, 
   selectedProperty, 
-  onPropertyClick,
-  center,
-  zoom = 6
+  onPropertyClick
 }: MapViewProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   
@@ -46,10 +43,6 @@ export default function MapView({
       coordinates: getCoordinates(property.location)
     }));
   }, [properties]);
-
-  const mapCenter = center || (propertiesWithCoords.length > 0 
-    ? propertiesWithCoords[0].coordinates 
-    : { lat: 44.0, lng: 18.0 });
 
   return (
     <div className={`relative bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50 rounded-none' : 'h-[500px] md:h-[600px]'}`} role="application" aria-label="Property map">

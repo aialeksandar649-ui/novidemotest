@@ -1,4 +1,4 @@
-import { X, Star, MapPin, Users, Bed, Bath, Wifi, Car, Utensils, Tv, Wind } from 'lucide-react';
+import { X, Star, MapPin, Users, Bed, Bath, Wifi, Car, Utensils, Tv, Wind, LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Property } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -9,7 +9,7 @@ interface PropertyComparisonProps {
   onRemove: (index: number) => void;
 }
 
-const amenityIcons: { [key: string]: any } = {
+const amenityIcons: Record<string, LucideIcon> = {
   'WiFi': Wifi,
   'Parking': Car,
   'Kitchen': Utensils,
@@ -192,7 +192,7 @@ export default function PropertyComparison({ properties, onClose, onRemove }: Pr
 
                 {/* Amenities */}
                 {allAmenities.map((amenity) => {
-                  const Icon = amenityIcons[amenity] || null;
+                  const Icon = amenityIcons[amenity];
                   return (
                     <tr key={amenity}>
                       <td className="p-4 font-medium text-gray-900 dark:text-gray-100 sticky left-0 bg-white dark:bg-gray-900 z-10">

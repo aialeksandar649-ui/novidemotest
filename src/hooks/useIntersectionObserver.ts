@@ -33,6 +33,11 @@ export function useIntersectionObserver({
         if (isElementIntersecting && !hasIntersected) {
           setHasIntersected(true);
         }
+        
+        // If triggerOnce is true and we've already intersected, disconnect
+        if (triggerOnce && hasIntersected) {
+          observer.disconnect();
+        }
       },
       { threshold, root, rootMargin }
     );
@@ -42,7 +47,7 @@ export function useIntersectionObserver({
     return () => {
       observer.disconnect();
     };
-  }, [threshold, root, rootMargin, hasIntersected]);
+  }, [threshold, root, rootMargin, hasIntersected, triggerOnce]);
 
   return { elementRef, isIntersecting, hasIntersected };
 }

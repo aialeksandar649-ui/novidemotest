@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -52,4 +53,3 @@ export function useTheme() {
   }
   return context;
 }
-
