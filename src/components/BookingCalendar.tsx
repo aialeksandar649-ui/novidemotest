@@ -10,11 +10,16 @@ interface BookingCalendarProps {
 
 export default function BookingCalendar({ onDatesSelect, initialStartDate, initialEndDate }: BookingCalendarProps) {
   const { language } = useLanguage();
-  const [currentMonth, setCurrentMonth] = useState(() => {
+  const [currentMonth1, setCurrentMonth1] = useState(() => {
     if (initialStartDate) {
       return new Date(initialStartDate.getFullYear(), initialStartDate.getMonth(), 1);
     }
     return new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  });
+  const [currentMonth2, setCurrentMonth2] = useState(() => {
+    const nextMonth = new Date(currentMonth1);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    return nextMonth;
   });
   const [startDate, setStartDate] = useState<Date | null>(initialStartDate || null);
   const [endDate, setEndDate] = useState<Date | null>(initialEndDate || null);
@@ -23,6 +28,12 @@ export default function BookingCalendar({ onDatesSelect, initialStartDate, initi
     setStartDate(initialStartDate || null);
     setEndDate(initialEndDate || null);
   }, [initialStartDate, initialEndDate]);
+
+  useEffect(() => {
+    const nextMonth = new Date(currentMonth1);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    setCurrentMonth2(nextMonth);
+  }, [currentMonth1]);
 
   const monthNames = language === 'sr' 
     ? ['Januar', 'Februar', 'Mart', 'April', 'Maj', 'Jun', 'Jul', 'Avgust', 'Septembar', 'Oktobar', 'Novembar', 'Decembar']
@@ -39,7 +50,6 @@ export default function BookingCalendar({ onDatesSelect, initialStartDate, initi
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     let startingDayOfWeek = firstDay.getDay();
-    // Adjust for Monday as first day (0 = Sunday, so 0 becomes 6, 1 becomes 0, etc.)
     startingDayOfWeek = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1;
 
     const days: (number | null)[] = [];
@@ -78,18 +88,11 @@ export default function BookingCalendar({ onDatesSelect, initialStartDate, initi
     if (!day || !startDate || !endDate) return false;
     const date = new Date(month.getFullYear(), month.getMonth(), day);
     date.setHours(0, 0, 0, 0);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(0, 0, 0, 0);
-    return date > startDate && date < endDate;
-  };
-
-  const isToday = (day: number, month: Date) => {
-    if (!day) return false;
-    const date = new Date(month.getFullYear(), month.getMonth(), day);
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+    return date > start && date < end;
   };
 
   const handleDateClick = (day: number, month: Date) => {
@@ -113,80 +116,119 @@ export default function BookingCalendar({ onDatesSelect, initialStartDate, initi
     }
   };
 
-  const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  const prevMonth1 = () => {
+    setCurrentMonth1(new Date(currentMonth1.getFullYear(), currentMonth1.getMonth() - 1, 1));
   };
 
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  const nextMonth1 = () => {
+    setCurrentMonth1(new Date(currentMonth1.getFullYear(), currentMonth1.getMonth() + 1, 1));
   };
 
-  const days = getDaysInMonth(currentMonth);
+  const prevMonth2 = () => {
+    setCurrentMonth2(new Date(currentMonth2.getFullYear(), currentMonth2.getMonth() - 1, 1));
+  };
+
+  const nextMonth2 = () => {
+    setCurrentMonth2(new Date(currentMonth2.getFullYear(), currentMonth2.getMonth() + 1, 1));
+  };
+
+  const renderMonth = (month: Date, isFirst: boolean) => {
+    const days = getDaysInMonth(month);
+    const prevMonth = isFirst ? prevMonth1 : prevMonth2;
+    const nextMonth = isFirst ? nextMonth1 : nextMonth2;
+
+    return (
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <button
+            onClick={prevMonth}
+            className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-teal-600 dark:text-teal-400"
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            {monthNames[month.getMonth()]} {month.getFullYear()}
+          </h3>
+          <button
+            onClick={nextMonth}
+            className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-teal-600 dark:text-teal-400"
+            aria-label="Next month"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-2">
+          {dayNames.map((day) => (
+            <div key={day} className="text-center text-xs sm:text-sm font-medium text-gray-400 dark:text-gray-500 py-1 sm:py-1.5">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+          {days.map((day, index) => {
+            if (!day) {
+              return <div key={index} className="h-9 sm:h-10"></div>;
+            }
+            
+            const isPast = isPastDate(day, month);
+            const isSelected = isDateSelected(day, month);
+            const inRange = isDateInRange(day, month);
+
+            const buttonClasses = `
+              h-9 w-9 sm:h-10 sm:w-10 rounded-full text-sm transition-all flex items-center justify-center
+              ${isPast 
+                ? 'text-gray-300 dark:text-gray-400 cursor-not-allowed font-normal' 
+                : isSelected
+                  ? 'bg-[#FF385C] text-white font-semibold hover:bg-[#E61E4D]'
+                  : inRange
+                    ? 'bg-[#FF385C]/20 text-gray-900 dark:text-gray-100 font-medium hover:bg-[#FF385C]/30'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-normal'
+              }
+            `;
+
+            return (
+              <button
+                key={index}
+                onClick={() => handleDateClick(day, month)}
+                disabled={isPast}
+                className={buttonClasses}
+                aria-label={`${day} ${monthNames[month.getMonth()]} ${month.getFullYear()}`}
+              >
+                {day}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={prevMonth}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        >
-          <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-        </button>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-        </h3>
-        <button
-          onClick={nextMonth}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        >
-          <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-        </button>
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-6">
+        {renderMonth(currentMonth1, true)}
+        <div className="hidden md:block w-px bg-gray-200 dark:bg-gray-700"></div>
+        <div className="hidden md:block flex-1">
+          {renderMonth(currentMonth2, false)}
+        </div>
       </div>
 
-      {/* Days Header */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {dayNames.map((day) => (
-          <div key={day} className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2">
-            {day}
-          </div>
-        ))}
-      </div>
-
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1">
-        {days.map((day, index) => {
-          if (!day) {
-            return <div key={index} className="h-10"></div>;
-          }
-          
-          const isPast = isPastDate(day, currentMonth);
-          const isSelected = isDateSelected(day, currentMonth);
-          const inRange = isDateInRange(day, currentMonth);
-          const isTodayDate = isToday(day, currentMonth);
-
-          return (
-            <button
-              key={index}
-              onClick={() => handleDateClick(day, currentMonth)}
-              disabled={isPast}
-              className={`
-                h-10 w-10 rounded-lg text-sm font-medium transition-colors
-                ${isPast 
-                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-50' 
-                  : isSelected
-                    ? 'bg-[#FF385C] text-white hover:bg-[#E61E4D]'
-                    : inRange
-                      ? 'bg-[#FF385C]/20 dark:bg-[#FF385C]/30 text-gray-900 dark:text-gray-100'
-                      : isTodayDate
-                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }
-              `}
-            >
-              {day}
-            </button>
-          );
-        })}
+      <div className="flex items-center justify-center gap-3 sm:gap-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex-wrap">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-gray-700 dark:bg-gray-300"></div>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Available</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Not available</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Selected</span>
+        </div>
       </div>
     </div>
   );

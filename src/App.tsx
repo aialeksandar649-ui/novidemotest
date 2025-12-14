@@ -1,16 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import PropertyDetail from './pages/PropertyDetail';
-import HowItWorks from './pages/HowItWorks';
-import HelpCenter from './pages/HelpCenter';
-import BecomeHost from './pages/BecomeHost';
-import Contact from './pages/Contact';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import { properties } from './data/properties';
+import LoadingSpinner from './components/LoadingSpinner';
+import AccessibilitySkipLink from './components/AccessibilitySkipLink';
+import { useProperties } from './contexts/PropertiesContext';
+
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home'));
+const PropertyDetail = lazy(() => import('./pages/PropertyDetail'));
+const HowItWorks = lazy(() => import('./pages/HowItWorks'));
+const HelpCenter = lazy(() => import('./pages/HelpCenter'));
+const BecomeHost = lazy(() => import('./pages/BecomeHost'));
+const Contact = lazy(() => import('./pages/Contact'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const Favorites = lazy(() => import('./pages/Favorites'));
+const Bookings = lazy(() => import('./pages/Bookings'));
+const Profile = lazy(() => import('./pages/Profile'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+    <LoadingSpinner size="lg" />
+  </div>
+);
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -23,21 +37,29 @@ function ScrollToTop() {
 }
 
 function App() {
+  const { properties } = useProperties();
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
+      <AccessibilitySkipLink />
       <ScrollToTop />
       <Header />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Home properties={properties} />} />
-          <Route path="/property/:id" element={<PropertyDetail properties={properties} />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/help" element={<HelpCenter />} />
-          <Route path="/become-host" element={<BecomeHost />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-        </Routes>
+      <main id="main-content" className="flex-1" tabIndex={-1}>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Home properties={properties} />} />
+            <Route path="/property/:id" element={<PropertyDetail properties={properties} />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/become-host" element={<BecomeHost />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/bookings" element={<Bookings />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </div>

@@ -2,8 +2,11 @@ import { useState, useEffect, ComponentType } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, Star, Share2, ArrowLeft, Wifi, Car, Utensils, Tv, Wind, Droplets, Shield, Clock, MapPin, CheckCircle } from 'lucide-react';
 import BookingCalendar from '../components/BookingCalendar';
+import SEO from '../components/SEO';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useFavorites } from '../hooks/useFavorites';
+import { useRecentViews } from '../hooks/useRecentViews';
+import { useToast } from '../contexts/ToastContext';
 import { Property } from '../types';
 
 interface PropertyDetailProps {
@@ -23,7 +26,7 @@ const amenityIcons: { [key: string]: ComponentType<{ className?: string }> } = {
 export default function PropertyDetail({ properties }: PropertyDetailProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const property = id ? properties[Number(id)] : undefined;
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [isReserving, setIsReserving] = useState(false);
@@ -34,13 +37,15 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
   const [showShareMenu, setShowShareMenu] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { addRecentView } = useRecentViews();
+  const { showToast } = useToast();
   const propertyId = id ? Number(id) : -1;
 
   useEffect(() => {
     if (property) {
-      document.title = `${property.title} - Nexora`;
+      addRecentView(property);
     }
-  }, [property]);
+  }, [property, addRecentView]);
 
   if (!property) {
     return (
@@ -50,7 +55,8 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
           <p className="text-gray-600 dark:text-gray-400 mb-4">{t('property.not.exist')}</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-[#FF385C] hover:bg-[#E61E4D] text-white rounded-lg font-semibold transition-colors"
+            className="px-6 py-3 bg-[#FF385C] hover:bg-[#E61E4D] text-white rounded-lg font-semibold transition-colors min-h-[44px]"
+            aria-label={t('go.home')}
           >
             {t('go.home')}
           </button>
@@ -60,18 +66,58 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
   }
 
   const handleReserve = async () => {
-    if (!selectedDates.start || !selectedDates.end) return;
+    if (!selectedDates.start || !selectedDates.end) {
+      showToast(t('select.dates.first'), 'warning');
+      return;
+    }
     
     setIsReserving(true);
     setReservationStatus('idle');
     
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Save booking to localStorage
+      const booking = {
+        id: `booking-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        propertyId: propertyId,
+        property: property,
+        checkIn: selectedDates.start.toISOString(),
+        checkOut: selectedDates.end.toISOString(),
+        guests: selectedGuests,
+        totalPrice: total,
+        status: 'upcoming',
+        bookingDate: new Date().toISOString()
+      };
+      
+      const existingBookings = localStorage.getItem('nexora-bookings');
+      const bookings = existingBookings ? JSON.parse(existingBookings) : [];
+      bookings.push(booking);
+      localStorage.setItem('nexora-bookings', JSON.stringify(bookings));
+      
       setReservationStatus('success');
+      showToast(t('reservation.successful'), 'success');
+      
+      // Reset form after short delay
+      setTimeout(() => {
+        setSelectedDates({ start: null, end: null });
+        setSelectedGuests(1);
+      }, 2000);
     } catch {
       setReservationStatus('error');
+      showToast(t('reservation.failed'), 'error');
     } finally {
       setIsReserving(false);
+    }
+  };
+
+  const handleFavoriteToggle = () => {
+    const wasFavorite = isFavorite(propertyId);
+    toggleFavorite(propertyId);
+    if (!wasFavorite) {
+      showToast(t('added.to.favorites'), 'success');
+    } else {
+      showToast(t('removed.from.favorites'), 'info');
     }
   };
 
@@ -111,9 +157,13 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
     const reviews = [];
     const reviewCount = Math.min(count, 5);
     for (let i = 0; i < reviewCount; i++) {
+      const monthsAgo = Math.floor(Math.random() * 12) + 1;
+      const dateText = language === 'sr' 
+        ? `pre ${monthsAgo} ${monthsAgo === 1 ? 'mesec' : monthsAgo < 5 ? 'meseca' : 'meseci'}`
+        : `${monthsAgo} ${t('months.ago')}`;
       reviews.push({
         name: names[i % names.length],
-        date: `${Math.floor(Math.random() * 12) + 1} ${t('months.ago')}`,
+        date: dateText,
         rating: Math.floor(rating),
         comment: comments[i % comments.length]
       });
@@ -128,10 +178,11 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
           <div className="container mx-auto px-4 lg:px-8 py-4">
             <button
               onClick={() => setShowAllPhotos(false)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[44px]"
+              aria-label={t('back')}
             >
               <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('back')}</span>
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 m-0">{t('back')}</p>
             </button>
           </div>
         </div>
@@ -144,11 +195,12 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                     src={image}
                     alt={`${property.title} ${index + 1}`}
                     className="w-full rounded-lg shadow-md"
+                    loading="lazy"
                     onError={() => handleImageError(index)}
                   />
                 ) : (
                   <div className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-400 dark:text-gray-500">{t('image.unavailable')}</span>
+                    <p className="text-gray-400 dark:text-gray-500 m-0">{t('image.unavailable')}</p>
                   </div>
                 )}
               </div>
@@ -161,22 +213,32 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <SEO 
+        title={property.title}
+        description={property.description}
+        image={property.images[0]}
+        url={window.location.href}
+        type="article"
+      />
       {/* Header with back button */}
       <div className="sticky top-20 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-4 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-[44px]"
+              aria-label={t('back')}
             >
               <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('back')}</span>
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 m-0">{t('back')}</p>
             </button>
             <div className="flex items-center gap-3">
               <div className="relative">
                 <button 
                   onClick={() => setShowShareMenu(!showShareMenu)}
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label={t('share') || 'Share'}
+                  aria-expanded={showShareMenu}
                 >
                   <Share2 className="h-5 w-5 text-gray-700 dark:text-gray-300" />
                 </button>
@@ -185,14 +247,17 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                     <div 
                       className="fixed inset-0 z-40" 
                       onClick={() => setShowShareMenu(false)}
+                      aria-hidden="true"
                     ></div>
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50" role="menu">
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(window.location.href);
                           setShowShareMenu(false);
+                          showToast(t('link.copied') || 'Link copied', 'success');
                         }}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 min-h-[44px]"
+                        role="menuitem"
                       >
                         {t('copy.link')}
                       </button>
@@ -200,8 +265,9 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                         href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 min-h-[44px]"
                         onClick={() => setShowShareMenu(false)}
+                        role="menuitem"
                       >
                         {t('share.facebook')}
                       </a>
@@ -209,8 +275,9 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                         href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(property.title)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 min-h-[44px]"
                         onClick={() => setShowShareMenu(false)}
+                        role="menuitem"
                       >
                         {t('share.twitter')}
                       </a>
@@ -219,10 +286,12 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                 )}
               </div>
               <button
-                onClick={() => toggleFavorite(propertyId)}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onClick={handleFavoriteToggle}
+                className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label={isFavorite(propertyId) ? t('remove.from.favorites') : t('add.to.favorites')}
+                aria-pressed={isFavorite(propertyId)}
               >
-                <Heart className={`h-5 w-5 ${isFavorite(propertyId) ? 'fill-[#FF385C] text-[#FF385C]' : 'text-gray-700 dark:text-gray-300'}`} />
+                <Heart className={`h-5 w-5 sm:h-6 sm:w-6 ${isFavorite(propertyId) ? 'fill-[#FF385C] text-[#FF385C]' : 'text-gray-700 dark:text-gray-300'}`} />
               </button>
             </div>
           </div>
@@ -236,23 +305,23 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
             <h1 className="text-2xl md:text-3xl font-semibold mb-3 text-gray-900 dark:text-gray-100">{property.title}</h1>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-black dark:fill-white text-black dark:text-white" />
-                <span className="font-semibold text-gray-900 dark:text-gray-100">{property.rating}</span>
+                <Star className="h-4 w-4 fill-black dark:fill-white text-black dark:text-white" aria-hidden="true" />
+                <p className="font-semibold text-gray-900 dark:text-gray-100 m-0">{property.rating}</p>
               </div>
-              <span className="text-gray-500 dark:text-gray-400">·</span>
-              <span className="underline font-semibold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
+              <p className="text-gray-500 dark:text-gray-400 m-0" aria-hidden="true">·</p>
+              <p className="underline font-semibold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 m-0">
                 {property.reviews} {t('reviews')}
-              </span>
-              <span className="text-gray-500 dark:text-gray-400">·</span>
+              </p>
+              <p className="text-gray-500 dark:text-gray-400 m-0" aria-hidden="true">·</p>
               <div className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
-                <MapPin className="h-4 w-4" />
-                <span className="font-semibold">{property.location}</span>
+                <MapPin className="h-4 w-4" aria-hidden="true" />
+                <p className="font-semibold m-0">{property.location}</p>
               </div>
             </div>
           </div>
 
           {/* Image Gallery */}
-          <div className="relative grid grid-cols-4 gap-2 rounded-xl overflow-hidden h-[500px] md:h-[600px]">
+          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-2 rounded-xl overflow-hidden h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
             <div className="col-span-2 row-span-2">
               {!imageErrors.has(0) ? (
                 <img
@@ -261,10 +330,11 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                   className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
                   onClick={() => setShowAllPhotos(true)}
                   onError={() => handleImageError(0)}
+                  loading="eager"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <span className="text-gray-400 dark:text-gray-500">{t('image.unavailable')}</span>
+                  <p className="text-gray-400 dark:text-gray-500 m-0">{t('image.unavailable')}</p>
                 </div>
               )}
             </div>
@@ -277,17 +347,19 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                     className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
                     onClick={() => setShowAllPhotos(true)}
                     onError={() => handleImageError(index + 1)}
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <span className="text-gray-400 dark:text-gray-500 text-sm">Image unavailable</span>
+                    <p className="text-gray-400 dark:text-gray-500 text-sm m-0">Image unavailable</p>
                   </div>
                 )}
               </div>
             ))}
             <button
-              className="absolute bottom-6 right-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold text-gray-900 dark:text-gray-100 shadow-lg transition-colors border border-gray-200 dark:border-gray-700"
+              className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 px-3 sm:px-4 py-2 rounded-lg font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100 shadow-lg transition-colors border border-gray-200 dark:border-gray-700 min-h-[44px]"
               onClick={() => setShowAllPhotos(true)}
+              aria-label={t('show.all.photos')}
             >
               {t('show.all.photos')}
             </button>
@@ -302,7 +374,7 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                   <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     {t('hosted.by')} {property.host.name}
                     {property.host.isSuperhost && (
-                      <span className="ml-2 text-xs bg-[#FF385C] text-white px-2 py-1 rounded-full font-semibold">{t('superhost')}</span>
+                      <p className="ml-2 text-xs bg-[#FF385C] text-white px-2 py-1 rounded-full font-semibold m-0 inline">{t('superhost')}</p>
                     )}
                   </h2>
                   <div className="text-gray-600 dark:text-gray-400 text-[15px] mb-2">
@@ -310,7 +382,7 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                   </div>
                   {property.host.responseTime && (
                     <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
+                      <Clock className="h-4 w-4" aria-hidden="true" />
                       {t('responds')} {property.host.responseTime}
                       {property.host.responseRate && ` · ${property.host.responseRate}% ${t('response.rate')}`}
                     </div>
@@ -344,8 +416,8 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                       const Icon = amenityIcons[amenity] || Shield;
                       return (
                         <div key={index} className="flex items-center gap-3">
-                          <Icon className="h-5 w-5 text-gray-900 dark:text-gray-100 flex-shrink-0" />
-                          <span className="text-gray-700 dark:text-gray-300 text-[15px]">{amenity}</span>
+                          <Icon className="h-5 w-5 text-gray-900 dark:text-gray-100 flex-shrink-0" aria-hidden="true" />
+                          <p className="text-gray-700 dark:text-gray-300 text-[15px] m-0">{amenity}</p>
                         </div>
                       );
                     })}
@@ -377,23 +449,25 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
               {/* Reviews */}
               <div className="pb-8 border-b border-gray-200 dark:border-gray-800">
                 <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
-                  <Star className="inline h-6 w-6 fill-black dark:fill-white text-black dark:text-white mr-2" />
+                  <Star className="inline h-6 w-6 fill-black dark:fill-white text-black dark:text-white mr-2" aria-hidden="true" />
                   {property.rating} · {property.reviews} {t('reviews')}
                 </h3>
                 <div className="space-y-6">
                   {generateReviews(property.reviews, property.rating).map((review, index) => (
-                    <div key={index} className="flex gap-4">
-                      <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                        <span className="text-gray-600 dark:text-gray-400 font-semibold">
+                    <article key={index} className="flex gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                        <p className="text-gray-600 dark:text-gray-400 font-semibold m-0">
                           {review.name.charAt(0).toUpperCase()}
-                        </span>
+                        </p>
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-semibold text-gray-900 dark:text-gray-100">{review.name}</span>
-                          <span className="text-gray-500 dark:text-gray-400 text-sm">{review.date}</span>
+                        <div className="mb-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-semibold text-gray-900 dark:text-gray-100 m-0">{review.name}</p>
+                          </div>
+                          <p className="text-gray-500 dark:text-gray-400 text-sm m-0">{review.date}</p>
                         </div>
-                        <div className="flex items-center gap-1 mb-2">
+                        <div className="flex items-center gap-1 mb-2" role="img" aria-label={`Rating: ${review.rating} out of 5 stars`}>
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
@@ -402,25 +476,26 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                                   ? 'fill-[#FF385C] text-[#FF385C]'
                                   : 'fill-gray-200 dark:fill-gray-700 text-gray-200 dark:text-gray-700'
                               }`}
+                              aria-hidden="true"
                             />
                           ))}
                         </div>
                         <p className="text-gray-700 dark:text-gray-300 text-[15px] leading-relaxed">{review.comment}</p>
                       </div>
-                    </div>
+                    </article>
                   ))}
                 </div>
               </div>
             </div>
 
             {/* Right Column - Booking Card */}
-            <div>
-              <div className="sticky top-32 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-lg bg-white dark:bg-gray-800">
+            <div className="lg:sticky lg:top-32">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 sm:p-6 shadow-lg bg-white dark:bg-gray-800">
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-semibold text-gray-900 dark:text-gray-100">${pricePerNight}</span>
-                      <span className="text-gray-600 dark:text-gray-400"> {t('night')}</span>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 m-0">${pricePerNight}</p>
+                      <p className="text-gray-600 dark:text-gray-400 m-0"> {t('night')}</p>
                     </div>
                     {additionalGuests > 0 && (
                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -429,17 +504,19 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-black dark:fill-white text-black dark:text-white" />
-                    <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">{property.rating}</span>
-                    <span className="text-gray-500 dark:text-gray-400">·</span>
-                    <span className="underline text-sm font-semibold text-gray-900 dark:text-gray-100">{property.reviews}</span>
+                    <Star className="h-4 w-4 fill-black dark:fill-white text-black dark:text-white" aria-hidden="true" />
+                    <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 m-0">{property.rating}</p>
+                    <p className="text-gray-500 dark:text-gray-400 m-0" aria-hidden="true">·</p>
+                    <p className="underline text-sm font-semibold text-gray-900 dark:text-gray-100 m-0">{property.reviews}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4 mb-6">
                   <button
                     onClick={() => setShowCalendar(!showCalendar)}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-4 text-left hover:border-gray-900 dark:hover:border-gray-500 transition-colors bg-white dark:bg-gray-800"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-4 text-left hover:border-gray-900 dark:hover:border-gray-500 transition-colors bg-white dark:bg-gray-800 min-h-[44px]"
+                    aria-label={t('select.dates') || 'Select dates'}
+                    aria-expanded={showCalendar}
                   >
                     <div className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">{t('check.in.date')} / {t('check.out.date')}</div>
                     {selectedDates.start && selectedDates.end ? (
@@ -452,7 +529,7 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                   </button>
 
                   {showCalendar && (
-                    <div className="mb-4">
+                    <div className="mb-4 w-full">
                       <BookingCalendar
                         onDatesSelect={(start, end) => {
                           setSelectedDates({ start, end });
@@ -468,9 +545,10 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                     <div className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('guests').toUpperCase()}</div>
                     <div className="relative">
                       <select
-                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold appearance-none cursor-pointer pr-10 hover:border-gray-900 dark:hover:border-gray-500 transition-colors"
+                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold appearance-none cursor-pointer pr-10 hover:border-gray-900 dark:hover:border-gray-500 transition-colors min-h-[44px]"
                         value={selectedGuests}
                         onChange={(e) => setSelectedGuests(Number(e.target.value))}
+                        aria-label={t('select.guests') || 'Select number of guests'}
                         style={{
                           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
                           backgroundRepeat: 'no-repeat',
@@ -493,26 +571,27 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                 </div>
 
                 <button
-                  className="w-full bg-[#FF385C] hover:bg-[#E61E4D] text-white py-4 rounded-lg font-semibold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[#FF385C] hover:bg-[#E61E4D] text-white py-4 rounded-lg font-semibold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                   onClick={handleReserve}
                   disabled={isReserving || totalNights === 0}
+                  aria-label={isReserving ? t('reserving') : t('reserve')}
                 >
                   {isReserving ? t('reserving') : t('reserve')}
                 </button>
 
                 {reservationStatus === 'success' && (
-                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 rounded-lg border border-green-200 dark:border-green-800">
+                  <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 rounded-lg border border-green-200 dark:border-green-800" role="alert">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" aria-hidden="true" />
                       <div>
-                        <p className="font-semibold mb-1">{t('reservation.successful')}</p>
-                        <p className="text-sm mb-2">{t('check.email')}</p>
+                        <p className="font-semibold mb-1 m-0">{t('reservation.successful')}</p>
+                        <p className="text-sm mb-2 m-0">{t('check.email')}</p>
                         {selectedDates.start && selectedDates.end && (
                           <div className="text-sm mt-2 pt-2 border-t border-green-200 dark:border-green-800">
-                            <p><strong>{t('check.in')}:</strong> {selectedDates.start.toLocaleDateString()}</p>
-                            <p><strong>{t('check.out')}:</strong> {selectedDates.end.toLocaleDateString()}</p>
-                            <p><strong>{t('guests')}:</strong> {selectedGuests}</p>
-                            <p className="mt-2"><strong>{t('total')}:</strong> ${total}</p>
+                            <p className="m-0"><strong>{t('check.in')}:</strong> {selectedDates.start.toLocaleDateString()}</p>
+                            <p className="m-0"><strong>{t('check.out')}:</strong> {selectedDates.end.toLocaleDateString()}</p>
+                            <p className="m-0"><strong>{t('guests')}:</strong> {selectedGuests}</p>
+                            <p className="mt-2 m-0"><strong>{t('total')}:</strong> ${total}</p>
                           </div>
                         )}
                       </div>
@@ -521,29 +600,29 @@ export default function PropertyDetail({ properties }: PropertyDetailProps) {
                 )}
 
                 {reservationStatus === 'error' && (
-                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-lg border border-red-200 dark:border-red-800">
-                    <p className="font-semibold">{t('something.wrong')}</p>
-                    <p className="text-sm">{t('try.again')}</p>
+                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-lg border border-red-200 dark:border-red-800" role="alert">
+                    <p className="font-semibold m-0">{t('something.wrong')}</p>
+                    <p className="text-sm m-0">{t('try.again')}</p>
                   </div>
                 )}
 
                 {totalNights > 0 && (
                   <div className="mt-6 space-y-3 text-gray-700 dark:text-gray-300">
                     <div className="flex justify-between">
-                      <span className="underline">${pricePerNight} × {totalNights} {totalNights === 1 ? t('night') : t('nights')}</span>
-                      <span className="font-semibold">${subtotal}</span>
+                      <p className="underline m-0">${pricePerNight} × {totalNights} {totalNights === 1 ? t('night') : t('nights')}</p>
+                      <p className="font-semibold m-0">${subtotal}</p>
                     </div>
                     <div className="flex justify-between">
-                      <span className="underline">{t('cleaning.fee')}</span>
-                      <span className="font-semibold">${cleaningFee}</span>
+                      <p className="underline m-0">{t('cleaning.fee')}</p>
+                      <p className="font-semibold m-0">${cleaningFee}</p>
                     </div>
                     <div className="flex justify-between">
-                      <span className="underline">{t('service.fee')}</span>
-                      <span className="font-semibold">${serviceFee}</span>
+                      <p className="underline m-0">{t('service.fee')}</p>
+                      <p className="font-semibold m-0">${serviceFee}</p>
                     </div>
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between font-semibold text-lg text-gray-900 dark:text-gray-100">
-                      <span>{t('total')}</span>
-                      <span>${total}</span>
+                      <p className="m-0">{t('total')}</p>
+                      <p className="m-0">${total}</p>
                     </div>
                   </div>
                 )}

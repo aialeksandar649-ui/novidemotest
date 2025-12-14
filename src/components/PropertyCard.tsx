@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Property } from '../types';
 import { useFavorites } from '../hooks/useFavorites';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface PropertyCardProps extends Property {
   id: number;
@@ -12,6 +13,7 @@ export default function PropertyCard({ id, imageUrl, images, location, title, pr
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const favorite = isFavorite(id);
 
   // Prioritize images array, then imageUrl, with fallback
@@ -19,25 +21,44 @@ export default function PropertyCard({ id, imageUrl, images, location, title, pr
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const wasFavorite = favorite;
     toggleFavorite(id);
+    if (!wasFavorite) {
+      showToast(t('added.to.favorites'), 'success');
+    } else {
+      showToast(t('removed.from.favorites'), 'info');
+    }
   };
 
   return (
-    <div 
+    <article 
       className="group cursor-pointer flex flex-col h-full animate-fade-in hover-lift active:scale-[0.98]"
       onClick={() => navigate(`/property/${id}`)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          navigate(`/property/${id}`);
+        }
+      }}
+      aria-label={`${title} in ${location}, $${price} per night`}
     >
       {/* Property Image Container */}
-      <div className="relative w-full aspect-[4/3] mb-2 sm:mb-3 rounded-lg overflow-hidden">
+      <div className="relative w-full aspect-[4/3] mb-2 sm:mb-3 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
         <img
           src={displayImage}
           alt={title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
+          style={{ filter: 'none', opacity: 1 }}
         />
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 sm:top-3 sm:right-3 p-2 sm:p-2.5 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="absolute top-2 left-2 sm:top-3 sm:left-3 p-2 sm:p-2.5 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors shadow-lg min-h-[44px] min-w-[44px] flex items-center justify-center z-10"
+          aria-label={favorite ? t('remove.from.favorites') : t('add.to.favorites')}
+          aria-pressed={favorite}
+          tabIndex={0}
         >
           <Heart 
             className={`h-5 w-5 sm:h-6 sm:w-6 transition-colors ${
@@ -45,6 +66,7 @@ export default function PropertyCard({ id, imageUrl, images, location, title, pr
                 ? 'fill-[#FF385C] text-[#FF385C]' 
                 : 'text-gray-700 dark:text-gray-300'
             }`} 
+            aria-hidden="true"
           />
         </button>
       </div>
@@ -57,8 +79,8 @@ export default function PropertyCard({ id, imageUrl, images, location, title, pr
               {location}
             </h3>
           </div>
-          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-            <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-black dark:fill-white text-black dark:text-white" />
+          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0" role="img" aria-label={`Rating: ${rating} out of 5 stars`}>
+            <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-black dark:fill-white text-black dark:text-white" aria-hidden="true" />
             <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">{rating}</span>
           </div>
         </div>
@@ -68,6 +90,6 @@ export default function PropertyCard({ id, imageUrl, images, location, title, pr
           <span className="text-gray-500 dark:text-gray-400"> {t('night')}</span>
         </p>
       </div>
-    </div>
+    </article>
   );
 }

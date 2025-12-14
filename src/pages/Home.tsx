@@ -4,7 +4,10 @@ import Categories from '../components/Categories';
 import PropertyCard from '../components/PropertyCard';
 import Filters, { FilterState } from '../components/Filters';
 import SkeletonCard from '../components/SkeletonCard';
+import SEO from '../components/SEO';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useRecentViews } from '../hooks/useRecentViews';
+import { useDebounce } from '../hooks/useDebounce';
 import { Property } from '../types';
 
 // Funkcija za dobijanje prevedenog naziva kategorije
@@ -30,6 +33,7 @@ interface HomeProps {
 export default function Home({ properties }: HomeProps) {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, 500],
@@ -42,19 +46,21 @@ export default function Home({ properties }: HomeProps) {
   });
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
+  const { recentViews, clearRecentViews } = useRecentViews();
 
   useEffect(() => {
     // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 500);
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 300);
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedCategory, filters]);
+  }, [debouncedSearchQuery, selectedCategory, filters]);
 
   const filteredProperties = useMemo(() => {
     let filtered = properties;
 
     // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if (debouncedSearchQuery) {
+      const query = debouncedSearchQuery.toLowerCase();
       filtered = filtered.filter(
         (property) =>
           property.location.toLowerCase().includes(query) ||
@@ -124,12 +130,26 @@ export default function Home({ properties }: HomeProps) {
     }
 
     return sorted;
-  }, [properties, searchQuery, selectedCategory, filters]);
+  }, [properties, debouncedSearchQuery, selectedCategory, filters]);
+
+  const seoTitle = debouncedSearchQuery 
+    ? `Search Results for "${debouncedSearchQuery}"`
+    : selectedCategory
+      ? `${getCategoryLabel(selectedCategory, t)} Properties`
+      : 'Discover Unique Places to Stay in the Balkans';
+
+  const seoDescription = debouncedSearchQuery
+    ? `Find the perfect accommodation in the Balkans. Search results for "${debouncedSearchQuery}".`
+    : 'Discover unique places to stay in the Balkans. Book authentic accommodations in Bosnia, Serbia, Montenegro, Croatia, and more.';
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+      />
       {/* Hero Section */}
-      <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[65vh] min-h-[400px] sm:min-h-[500px] md:min-h-[500px] max-h-[650px] overflow-hidden">
+      <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[65vh] min-h-[400px] sm:min-h-[500px] md:min-h-[500px] max-h-[650px] overflow-hidden" aria-label="Hero section">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&auto=format&fit=crop&q=80"
@@ -154,11 +174,42 @@ export default function Home({ properties }: HomeProps) {
       {/* Categories */}
       <Categories onCategorySelect={setSelectedCategory} selectedCategory={selectedCategory} />
 
+      {/* Recent Views */}
+      {recentViews.length > 0 && !debouncedSearchQuery && !selectedCategory && (
+        <section className="container mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8" aria-labelledby="recent-views-heading">
+          <div className="flex items-center justify-between mb-6">
+            <h2 id="recent-views-heading" className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100">
+              {t('recent.views')}
+            </h2>
+            <button
+              onClick={clearRecentViews}
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-[#FF385C] transition-colors min-h-[44px] px-2"
+              aria-label={t('clear.recent.views')}
+            >
+              {t('clear.recent.views')}
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" role="list">
+            {recentViews.slice(0, 4).map((property, index) => {
+              const propertyId = properties.findIndex(p => p.title === property.title && p.location === property.location);
+              return (
+                <div key={`recent-${propertyId >= 0 ? propertyId : index}`} role="listitem">
+                  <PropertyCard
+                    {...property}
+                    id={propertyId >= 0 ? propertyId : properties.length + index}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Filters and Properties */}
-      <section className="container mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 md:py-12">
+      <section className="container mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 md:py-12" aria-labelledby="properties-heading">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {/* Filters Sidebar */}
-          <aside className="lg:col-span-1">
+          <aside className="lg:col-span-1" aria-label="Filters">
             <Filters onFilterChange={setFilters} />
           </aside>
 
@@ -167,9 +218,9 @@ export default function Home({ properties }: HomeProps) {
         {filteredProperties.length > 0 ? (
           <>
             <div className="mb-10">
-              <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                {searchQuery 
-                  ? `${t('search.results')} "${searchQuery}"` 
+              <h2 id="properties-heading" className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                {debouncedSearchQuery 
+                  ? `${t('search.results')} "${debouncedSearchQuery}"` 
                   : selectedCategory 
                     ? `${getCategoryLabel(selectedCategory, t)} ${t('properties')}` 
                     : t('explore.all')
@@ -180,28 +231,29 @@ export default function Home({ properties }: HomeProps) {
               </p>
             </div>
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" role="status" aria-label="Loading properties">
                 {[...Array(8)].map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8" role="list">
                 {filteredProperties.map((property, index) => {
                   const propertyId = properties.findIndex(p => p === property);
                   return (
-                    <PropertyCard 
-                      key={`property-${propertyId >= 0 ? propertyId : index}`} 
-                      {...property} 
-                      id={propertyId >= 0 ? propertyId : index} 
-                    />
+                    <div key={`property-${propertyId >= 0 ? propertyId : index}`} role="listitem">
+                      <PropertyCard 
+                        {...property} 
+                        id={propertyId >= 0 ? propertyId : index} 
+                      />
+                    </div>
                   );
                 })}
               </div>
             )}
           </>
         ) : (
-          <div className="text-center py-20">
+          <div className="text-center py-20" role="status">
             <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('no.properties')}</h2>
             <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg">{t('try.adjusting')}</p>
           </div>

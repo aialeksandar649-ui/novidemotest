@@ -3,26 +3,7 @@
 @tailwind utilities;
 
 
-/* Hide circular elements and elements with masks */
-* {
-  &[style*="border-radius: 50%"],
-  &[style*="border-radius:50%"] {
-    display: none !important;
-  }
-}
-
-/* Hide elements with rounded-full that create circles (when width = height) */
-.rounded-full {
-  &[class*="w-"]:not([class*="w-full"]):not([class*="w-auto"]) {
-    display: none !important;
-  }
-}
-
-/* Hide elements with mask-image */
-*[style*="mask-image"],
-*[style*="maskImage"] {
-  display: none !important;
-}
+/* Note: Removed rules that were hiding circular elements to prevent overlay issues */
 
 @layer utilities {
   /* Smooth scrolling */
@@ -57,8 +38,23 @@
     animation: fadeIn 0.3s ease-out;
   }
 
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
   .animate-slide-in {
     animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
   }
 
   /* Hover effects */
@@ -187,6 +183,27 @@
   a, button {
     -webkit-tap-highlight-color: rgba(255, 56, 92, 0.1);
   }
+
+  /* Optimize text rendering */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Better touch targets */
+  button, a, input, select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Medium touch targets for tablets */
+  button, a {
+    min-height: 40px;
+    min-width: 40px;
+  }
 }
 
 /* Safe area utilities */
@@ -212,6 +229,32 @@ img {
   display: block;
   max-width: 100%;
   height: auto;
+  filter: none !important;
+  opacity: 1 !important;
+  /* Optimize image rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  /* Prevent layout shift */
+  aspect-ratio: attr(width) / attr(height);
+}
+
+/* Lazy loading images */
+img[loading="lazy"] {
+  content-visibility: auto;
+}
+
+/* Remove any overlay effects on property card images */
+.aspect-\[4\/3\]::before,
+.aspect-\[4\/3\]::after {
+  display: none !important;
+  content: none !important;
+}
+
+.aspect-\[4\/3\] img {
+  filter: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Grid layout fixes */
@@ -231,13 +274,10 @@ img {
 .aspect-\[4\/3\] {
   position: relative;
   width: 100%;
-  padding-bottom: 75%;
 }
 
-.aspect-\[4\/3\] > * {
-  position: absolute;
-  top: 0;
-  left: 0;
+.aspect-\[4\/3\] > img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
